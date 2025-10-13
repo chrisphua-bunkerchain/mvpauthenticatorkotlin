@@ -2,6 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-feature android:name="android.hardware.camera.any" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- This block declares which other apps this app intends to query -->
+    <queries>
+        <package android:name="com.bunkerchain.mvp_app" />
+    </queries>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -11,16 +23,40 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Mvpauthenticatorkotlin">
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Mvpauthenticatorkotlin">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- This entry specifically targets the ZXing scanner activity -->
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            android:screenOrientation="portrait"
+            tools:replace="screenOrientation" />
+
+        <!--
+         ====================================================================
+         == SERVICE DECLARATION FOR MyService
+         ====================================================================
+         - android:name: The full path to your service class.
+         - android:exported="true": MANDATORY. Allows other apps to start this service.
+         - android:permission: RECOMMENDED. Restricts which apps can start this service.
+        -->
+        <service
+            android:name=".service.MyService"
+            android:foregroundServiceType="dataSync"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=".service.MyService" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
