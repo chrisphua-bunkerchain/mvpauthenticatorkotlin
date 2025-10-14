@@ -15,46 +15,69 @@ import com.example.mvpauthenticatorkotlin.R
 class MyService : Service() {
 
     companion object {
-        const val TAG = "MyService"
         const val NOTIFICATION_CHANNEL_ID = "mvp_result_channel"
-        // Define a public action for the broadcast so the Fragment can listen for it
+
+        // Define a public action for the broadcast so the UI (Activity/Fragment) can listen for it
         const val ACTION_MVP_RESULT = "com.example.mvpauthenticatorkotlin.MVP_RESULT"
         const val EXTRA_STATUS = "status"
     }
 
-    // ... (onCreate, startForegroundWithNotification, etc. remain the same) ...
+    /**
+     * Called by the system when the service is first created.
+     * This is where you should do one-time setup and start the foreground process.
+     */
+    override fun onCreate() {
+        super.onCreate()
+        Log.d(MyService::class.simpleName, "Service Created.")
+        // Immediately promote the service to a foreground service.
+        // This is required within 5 seconds of the service starting on modern Android
+        // to avoid the app being terminated.
+        startForegroundWithNotification()
+    }
 
+    /**
+     * Called by the system every time a client starts the service.
+     * This method is triggered by calls to both `startService()` and `startForegroundService()`.
+     * This is where the service does its main work.
+     */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "onStartCommand received.")
+        Log.d(MyService::class.simpleName, "onStartCommand received.")
         intent?.let {
             val status = it.getStringExtra(EXTRA_STATUS)
-            Log.d(TAG, "Received verification result from MVP app: $status")
+            Log.d(MyService::class.simpleName, "Received verification result from MVP app: $status")
 
-            // *** BROADCAST THE RESULT ***
+            // 1. Broadcast the result to any listening UI components (like MainActivity).
             sendResultBroadcast(status)
 
+            // 2. Update the notification to show the final result.
             updateNotification("Result received: ${status ?: "No status"}")
         }
 
+        // START_NOT_STICKY tells the system not to recreate the service if it's killed.
+        // This is appropriate for services that handle a single, one-off task.
         return START_NOT_STICKY
     }
 
-    private fun sendResultBroadcast(status: String?) {
+    /**
+     * This service is designed to be "started" not "bound". Therefore, onBind should return null.
+     * The communication back to the UI is handled via Broadcasts, not by binding to the service.
+     */
+    override fun onBind(intent: Intent?): IBinder? = null
+
+    /**
+     * Sends the received status via a local broadcast, which the MainActivity can listen for.
+     */
+    fun sendResultBroadcast(status: String?) {
         val broadcastIntent = Intent(ACTION_MVP_RESULT).apply {
             putExtra(EXTRA_STATUS, status ?: "No result data")
         }
         sendBroadcast(broadcastIntent)
-        Log.d(TAG, "Result broadcast sent.")
+        Log.d(MyService::class.simpleName, "Result broadcast sent.")
     }
 
-    // --- The rest of the file (onBind, onDestroy, etc.) is the same ---
-    // (I'm omitting the rest of the file for brevity, no other changes are needed there)
-    override fun onCreate() {
-        super.onCreate()
-        Log.d(TAG, "Service Created.")
-        startForegroundWithNotification()
-    }
-
+    /**
+     * Creates the notification and promotes the service to the foreground.
+     */
     @SuppressLint("ForegroundServiceType")
     private fun startForegroundWithNotification() {
         createNotificationChannel()
@@ -64,6 +87,8 @@ class MyService : Service() {
             .setContentText("Waiting for MVP app result...")
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
+
+        // The foregroundServiceType must also be declared in the AndroidManifest.xml for this service.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
         } else {
@@ -71,6 +96,9 @@ class MyService : Service() {
         }
     }
 
+    /**
+     * Updates the persistent notification with the final result and then stops the service.
+     */
     private fun updateNotification(contentText: String) {
         val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
@@ -83,6 +111,9 @@ class MyService : Service() {
         stopSelf()
     }
 
+    /**
+     * Creates the Notification Channel required for Android 8.0 (Oreo) and above.
+     */
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -93,12 +124,5 @@ class MyService : Service() {
             val manager = getSystemService(NotificationManager::class.java)
             manager?.createNotificationChannel(channel)
         }
-    }
-
-    override fun onBind(intent: Intent?): IBinder? = null
-
-    override fun onDestroy() {
-        Log.d(TAG, "Service Destroyed.")
-        super.onDestroy()
     }
 }
