@@ -11,8 +11,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.fragment.findNavController
-//import androidx.navigation.fragment.findNavController
 import com.example.mvpauthenticatorkotlin.databinding.FragmentFirstBinding
 import com.example.mvpauthenticatorkotlin.service.MyService
 import com.google.android.material.snackbar.Snackbar
@@ -33,6 +31,9 @@ class FirstFragment : Fragment() {
 
     private var jsonResult: String = ""
 
+    /**
+     * BroadcastReceiver to receive the result of the MVP verification.
+     */
     private val mvpResultReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             // Check if the received broadcast has the correct action
@@ -83,10 +84,6 @@ class FirstFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-//        binding.buttonFirst.setOnClickListener {
-//            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
-//        }
 
         binding.scannerButton.setOnClickListener {
             startScanner()
@@ -156,6 +153,9 @@ class FirstFragment : Fragment() {
         _binding = null
     }
 
+    /**
+     * Launches the barcode scanner.
+     */
     private fun startScanner() {
         val options = ScanOptions()
         options.setDesiredBarcodeFormats(ScanOptions.QR_CODE)
