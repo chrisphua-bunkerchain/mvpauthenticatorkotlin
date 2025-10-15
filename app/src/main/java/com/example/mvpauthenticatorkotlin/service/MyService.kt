@@ -90,7 +90,6 @@ class MyService : Service() {
             .setContentText("Waiting for MVP app result...")
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
-
         // The foregroundServiceType must also be declared in the AndroidManifest.xml for this service.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)

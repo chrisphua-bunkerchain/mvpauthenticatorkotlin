@@ -58,7 +58,7 @@ class FirstFragment : Fragment() {
             requireActivity().registerReceiver(
                 mvpResultReceiver,
                 intentFilter,
-                Context.RECEIVER_EXPORTED // Use NOT_EXPORTED for internal app broadcasts
+                Context.RECEIVER_EXPORTED
             )
         } else {
             requireActivity().registerReceiver(mvpResultReceiver, intentFilter)
