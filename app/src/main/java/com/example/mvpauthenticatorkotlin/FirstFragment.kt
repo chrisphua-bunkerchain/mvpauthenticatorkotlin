@@ -18,6 +18,7 @@ import com.example.mvpauthenticatorkotlin.service.MyService
 import com.google.android.material.snackbar.Snackbar
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
+import org.json.JSONObject
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -37,7 +38,7 @@ class FirstFragment : Fragment() {
             // Check if the received broadcast has the correct action
             if (intent?.action == MyService.ACTION_MVP_RESULT) {
                 val status = intent.getStringExtra(MyService.EXTRA_STATUS) ?: "No status received"
-                val message = "Result from MVP App: $status"
+                val message = status
 
                 Log.d(FirstFragment::class.java.simpleName, message)
 
@@ -106,7 +107,9 @@ class FirstFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            val scannedJson = org.json.JSONObject(jsonResult)
+            val scannedJson = JSONObject(jsonResult)
+
+            val token = scannedJson.optString("token", "")
 
             val accountNumber = scannedJson.optString("accountNumber", "")
             val code = scannedJson.optString("code", "")
@@ -115,31 +118,36 @@ class FirstFragment : Fragment() {
             val imoNumber = scannedJson.optString("imoNumber", "")
             val licenseNumber = scannedJson.optString("licenseNumber", "")
 
-            var authenticationCodeValue = ""
-
-            if (codeType == "imoNumber") {
-                authenticationCodeValue = imoNumber + accountNumber
-            } else if (codeType == "licenseNumber") {
-                authenticationCodeValue = licenseNumber + accountNumber
-            } else {
-                Log.d(FirstFragment::class.java.simpleName, "Code type not recognized: $codeType")
-                Snackbar.make(
-                    binding.root,
-                    "Code type not recognized: $codeType",
-                    Snackbar.LENGTH_SHORT
-                ).show()
-                return@setOnClickListener
-            }
-
-            binding.textviewFirst.text = "Starting background verification..."
             Log.d(FirstFragment::class.java.simpleName, "Starting background verification process.")
-            Snackbar.make(binding.root, "Verification sent to background...", Snackbar.LENGTH_SHORT)
-                .show()
+            Snackbar.make(binding.root, "Verification sent to background...", Snackbar.LENGTH_SHORT).show()
 
-            MVPVerificationService.authenticate(view.context, authenticationCodeValue, code)
+            if (!token.isEmpty()) {
+                MVPVerificationService.authenticate(view.context, token)
 
-            // The result will come back to MyService -> BroadcastReceiver automatically.
-            binding.textviewFirst.text = "Token sent. Waiting for background result..."
+                // The result will come back to MyService -> BroadcastReceiver automatically.
+                binding.textviewFirst.text = "Token sent. Waiting for background result..."
+            } else {
+                var authenticationCodeValue: String
+
+                if (codeType == "imoNumber") {
+                    authenticationCodeValue = imoNumber + accountNumber
+                } else if (codeType == "licenseNumber") {
+                    authenticationCodeValue = licenseNumber + accountNumber
+                } else {
+                    Log.d(FirstFragment::class.java.simpleName, "Code type not recognized: $codeType")
+                    Snackbar.make(
+                        binding.root,
+                        "Code type not recognized: $codeType",
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                    return@setOnClickListener
+                }
+
+                MVPVerificationService.authenticate(view.context, authenticationCodeValue, code)
+
+                // The result will come back to MyService -> BroadcastReceiver automatically.
+                binding.textviewFirst.text = "Code sent. Waiting for background result..."
+            }
         }
     }
 

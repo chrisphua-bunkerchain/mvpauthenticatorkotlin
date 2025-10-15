@@ -13,6 +13,7 @@ import android.widget.Toast
 object MVPVerificationService {
 
     private const val MVP_APP_PACKAGE = "com.bunkerchain.mvp_app"
+    private const val MVP_APP_SPLASH = "com.bunkerchain.mvp_app.main.SplashActivity"
     private const val MVP_APP_SERVICE = "com.bunkerchain.mvp_app.main.TokenProcessingService"
 
     fun checkMvpAppInstalled(context: Context): Boolean {
@@ -33,6 +34,33 @@ object MVPVerificationService {
         return true
     }
 
+    fun authenticate(context: Context, token: String) {
+        val myPackageName = context.packageName;
+        val intent = Intent()
+        intent.putExtra("token", token)
+        intent.putExtra("packageName", myPackageName)
+
+        val component = ComponentName(
+            MVP_APP_PACKAGE,
+            MVP_APP_SERVICE
+        )
+        intent.setComponent(component)
+
+        try {
+            Log.d(MVPVerificationService::class.java.simpleName, "Attempting to start MVP app service...")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
+            Log.d(MVPVerificationService::class.java.simpleName, "Service intent sent successfully.")
+        } catch (e: Exception) {
+            // Log the full exception. This is the most important step for debugging.
+            Log.e(MVPVerificationService::class.java.simpleName, "Failed to start MVP app service.", e)
+            Toast.makeText(context, "Could not start MVP app service.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     @SuppressLint("HardwareIds")
     fun authenticate(context: Context, imoNumber: String, code: String) {
         val myPackageName = context.packageName;
@@ -51,7 +79,7 @@ object MVPVerificationService {
 
         val component = ComponentName(
             MVP_APP_PACKAGE,
-            "com.bunkerchain.mvp_app.main.SplashActivity"
+            MVP_APP_SPLASH
         )
         intent.setComponent(component)
 
