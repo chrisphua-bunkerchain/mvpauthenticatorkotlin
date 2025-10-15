@@ -12,8 +12,12 @@ import android.widget.Toast
 
 object MVPVerificationService {
 
+    val TAG: String = this::class.java.simpleName
+
     private const val MVP_APP_PACKAGE = "com.bunkerchain.mvp_app"
+
     private const val MVP_APP_SPLASH = "com.bunkerchain.mvp_app.main.SplashActivity"
+
     private const val MVP_APP_SERVICE = "com.bunkerchain.mvp_app.main.TokenProcessingService"
 
     fun checkMvpAppInstalled(context: Context): Boolean {
@@ -26,7 +30,7 @@ object MVPVerificationService {
         // Check if the app is installed
         val apps = packageManager.queryIntentActivities(intent, 0)
         if (apps.isEmpty()) {
-            Log.w(MVPVerificationService::class.java.simpleName, "MVP app not found. Check package name and <queries> in manifest.")
+            Log.w(TAG, "MVP app not found. Check package name and <queries> in manifest.")
             Toast.makeText(context, "MVP app not installed.", Toast.LENGTH_SHORT).show()
             return false
         }
@@ -47,16 +51,16 @@ object MVPVerificationService {
         intent.setComponent(component)
 
         try {
-            Log.d(MVPVerificationService::class.java.simpleName, "Attempting to start MVP app service...")
+            Log.d(TAG, "Attempting to start MVP app service...")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(intent)
             } else {
                 context.startService(intent)
             }
-            Log.d(MVPVerificationService::class.java.simpleName, "Service intent sent successfully.")
+            Log.d(TAG, "Service intent sent successfully.")
         } catch (e: Exception) {
             // Log the full exception. This is the most important step for debugging.
-            Log.e(MVPVerificationService::class.java.simpleName, "Failed to start MVP app service.", e)
+            Log.e(TAG, "Failed to start MVP app service.", e)
             Toast.makeText(context, "Could not start MVP app service.", Toast.LENGTH_SHORT).show()
         }
     }
@@ -84,12 +88,12 @@ object MVPVerificationService {
         intent.setComponent(component)
 
         try {
-            Log.d(MVPVerificationService::class.java.simpleName, "Attempting to start MVP app service...")
+            Log.d(TAG, "Attempting to start MVP app service...")
             context.startActivity(intent)
-            Log.d(MVPVerificationService::class.java.simpleName, "Service intent sent successfully.")
+            Log.d(TAG, "Service intent sent successfully.")
         } catch (e: Exception) {
             // Log the full exception. This is the most important step for debugging.
-            Log.e(MVPVerificationService::class.java.simpleName, "Failed to start MVP app service.", e)
+            Log.e(TAG, "Failed to start MVP app service.", e)
             Toast.makeText(context, "Could not start MVP app service.", Toast.LENGTH_SHORT).show()
         }
     }

@@ -14,11 +14,14 @@ import com.example.mvpauthenticatorkotlin.R
 
 class MyService : Service() {
 
+    val TAG: String = this::class.java.simpleName
+
     companion object {
         const val NOTIFICATION_CHANNEL_ID = "mvp_result_channel"
 
         // Define a public action for the broadcast so the UI (Activity/Fragment) can listen for it
         const val ACTION_MVP_RESULT = "com.example.mvpauthenticatorkotlin.MVP_RESULT"
+
         const val EXTRA_STATUS = "status"
     }
 
@@ -28,7 +31,7 @@ class MyService : Service() {
      */
     override fun onCreate() {
         super.onCreate()
-        Log.d(MyService::class.simpleName, "Service Created.")
+        Log.d(TAG, "Service Created.")
         // Immediately promote the service to a foreground service.
         // This is required within 5 seconds of the service starting on modern Android
         // to avoid the app being terminated.
@@ -41,10 +44,10 @@ class MyService : Service() {
      * This is where the service does its main work.
      */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(MyService::class.simpleName, "onStartCommand received.")
+        Log.d(TAG, "onStartCommand received.")
         intent?.let {
             val status = it.getStringExtra(EXTRA_STATUS)
-            Log.d(MyService::class.simpleName, "Received verification result from MVP app: $status")
+            Log.d(TAG, "Received verification result from MVP app: $status")
 
             // 1. Broadcast the result to any listening UI components (like MainActivity).
             sendResultBroadcast(status)
@@ -72,7 +75,7 @@ class MyService : Service() {
             putExtra(EXTRA_STATUS, status ?: "No result data")
         }
         sendBroadcast(broadcastIntent)
-        Log.d(MyService::class.simpleName, "Result broadcast sent.")
+        Log.d(TAG, "Result broadcast sent.")
     }
 
     /**

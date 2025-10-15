@@ -23,10 +23,10 @@ import org.json.JSONObject
  */
 class FirstFragment : Fragment() {
 
+    val TAG: String = this::class.java.simpleName
+
     private var _binding: FragmentFirstBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
 
     private var jsonResult: String = ""
@@ -41,7 +41,7 @@ class FirstFragment : Fragment() {
                 val status = intent.getStringExtra(MyService.EXTRA_STATUS) ?: "No status received"
                 val message = status
 
-                Log.d(FirstFragment::class.java.simpleName, message)
+                Log.d(TAG, message)
 
                 // Update the UI with the final result
                 binding.textviewFirst.text = message
@@ -63,13 +63,13 @@ class FirstFragment : Fragment() {
         } else {
             requireActivity().registerReceiver(mvpResultReceiver, intentFilter)
         }
-        Log.d(FirstFragment::class.java.simpleName, "MVP Result Receiver registered.")
+        Log.d(TAG, "MVP Result Receiver registered.")
     }
 
     override fun onStop() {
         super.onStop()
         requireActivity().unregisterReceiver(mvpResultReceiver)
-        Log.d(FirstFragment::class.java.simpleName, "MVP Result Receiver unregistered.")
+        Log.d(TAG, "MVP Result Receiver unregistered.")
     }
 
     override fun onCreateView(
@@ -99,7 +99,7 @@ class FirstFragment : Fragment() {
 
         binding.authenticateButton.setOnClickListener {
             if (jsonResult.isBlank()) {
-                Log.d(FirstFragment::class.java.simpleName, "No QR code scanned!")
+                Log.d(TAG, "No QR code scanned!")
                 Snackbar.make(binding.root, "No QR code scanned!", Snackbar.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -115,7 +115,7 @@ class FirstFragment : Fragment() {
             val imoNumber = scannedJson.optString("imoNumber", "")
             val licenseNumber = scannedJson.optString("licenseNumber", "")
 
-            Log.d(FirstFragment::class.java.simpleName, "Starting background verification process.")
+            Log.d(TAG, "Starting background verification process.")
             Snackbar.make(binding.root, "Verification sent to background...", Snackbar.LENGTH_SHORT).show()
 
             if (!token.isEmpty()) {
@@ -131,7 +131,7 @@ class FirstFragment : Fragment() {
                 } else if (codeType == "licenseNumber") {
                     authenticationCodeValue = licenseNumber + accountNumber
                 } else {
-                    Log.d(FirstFragment::class.java.simpleName, "Code type not recognized: $codeType")
+                    Log.d(TAG, "Code type not recognized: $codeType")
                     Snackbar.make(
                         binding.root,
                         "Code type not recognized: $codeType",

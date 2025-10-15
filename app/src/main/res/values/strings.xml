@@ -2,12 +2,10 @@
     <string name="app_name">mvpauthenticatorkotlin</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
+    <string name="first_fragment_label">Kotlin</string>
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
-    <string name="scan_qr_code">Scan MVP Authenticator\'s QR Code</string>
-
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
         volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus
@@ -44,6 +42,7 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
+    <string name="scan_qr_code">Scan MVP Authenticator\'s QR Code</string>
     <string name="mvp_app_installed">MVP App Installed?</string>
     <string name="authenticate_with_mvp_authenticator">Authenticate with MVP Authenticator</string>
 </resources>
