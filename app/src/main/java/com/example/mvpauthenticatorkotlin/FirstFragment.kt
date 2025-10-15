@@ -12,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+//import androidx.navigation.fragment.findNavController
 import com.example.mvpauthenticatorkotlin.databinding.FragmentFirstBinding
 import com.example.mvpauthenticatorkotlin.service.MyService
 import com.google.android.material.snackbar.Snackbar
@@ -69,16 +70,6 @@ class FirstFragment : Fragment() {
         Log.d(FirstFragment::class.java.simpleName, "MVP Result Receiver unregistered.")
     }
 
-    private val barcodeLauncher = registerForActivityResult(ScanContract()) { result ->
-        if (result.contents == null) {
-            Snackbar.make(binding.root, "Cancelled", Snackbar.LENGTH_LONG).show()
-        } else {
-            Snackbar.make(binding.root, "Scanned", Snackbar.LENGTH_LONG).show()
-            binding.textviewFirst.text = result.contents
-            jsonResult = result.contents
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -92,9 +83,9 @@ class FirstFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.buttonFirst.setOnClickListener {
-            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
-        }
+//        binding.buttonFirst.setOnClickListener {
+//            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+//        }
 
         binding.scannerButton.setOnClickListener {
             startScanner()
@@ -108,7 +99,7 @@ class FirstFragment : Fragment() {
             }
         }
 
-        binding.authenticateWithMvpAppButton.setOnClickListener {
+        binding.authenticateButton.setOnClickListener {
             if (jsonResult.isBlank()) {
                 Log.d(FirstFragment::class.java.simpleName, "No QR code scanned!")
                 Snackbar.make(binding.root, "No QR code scanned!", Snackbar.LENGTH_SHORT).show()
@@ -165,5 +156,15 @@ class FirstFragment : Fragment() {
         options.setBeepEnabled(false)
         options.setBarcodeImageEnabled(true)
         barcodeLauncher.launch(options)
+    }
+
+    private val barcodeLauncher = registerForActivityResult(ScanContract()) { result ->
+        if (result.contents == null) {
+            Snackbar.make(binding.root, "Cancelled", Snackbar.LENGTH_LONG).show()
+        } else {
+            Snackbar.make(binding.root, "Scanned", Snackbar.LENGTH_LONG).show()
+            binding.textviewFirst.text = result.contents
+            jsonResult = result.contents
+        }
     }
 }

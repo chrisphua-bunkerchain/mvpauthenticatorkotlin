@@ -47,12 +47,6 @@
                 <action android:name=".service.MyService" />
             </intent-filter>
         </service>
-
-        <receiver android:name=".MyBroadcastReceiver" android:exported="false">
-            <intent-filter>
-                <action android:name="com.example.snippets.ACTION_UPDATE_DATA" />
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>
