@@ -12,7 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.mvpauthenticatorkotlin.databinding.FragmentFirstBinding
-import com.example.mvpauthenticatorkotlin.service.MyService
+import com.example.mvpauthenticatorkotlin.service.MvpResultReceiver
 import com.google.android.material.snackbar.Snackbar
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
@@ -31,39 +31,28 @@ class FirstFragment : Fragment() {
 
     private var jsonResult: String = ""
 
-    /**
-     * BroadcastReceiver to receive the result of the MVP verification.
-     */
-    private val mvpResultReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            // Check if the received broadcast has the correct action
-            if (intent?.action == MyService.ACTION_MVP_RESULT) {
-                val status = intent.getStringExtra(MyService.EXTRA_STATUS) ?: "No status received"
-                val message = status
-
-                Log.d(TAG, message)
-
-                // Update the UI with the final result
-                binding.textviewFirst.text = message
-                Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
-            }
+    override fun onResume() {
+        super.onResume()
+        val intentFilter = IntentFilter(MvpResultReceiver.ACTION_MVP_RESULT)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requireActivity().registerReceiver(
+                mvpResultReceiver, intentFilter, Context.RECEIVER_EXPORTED
+            )
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        val intentFilter = IntentFilter(MyService.ACTION_MVP_RESULT)
-        // For Android Tiramisu (API 33) and above, you must specify the exported flag.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            requireActivity().registerReceiver(
-                mvpResultReceiver,
-                intentFilter,
-                Context.RECEIVER_EXPORTED
-            )
-        } else {
-            requireActivity().registerReceiver(mvpResultReceiver, intentFilter)
+    /**
+     * BroadcastReceiver to receive the result of the MVP verification from MvpResultReceiver.
+     */
+    private val mvpResultReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == MvpResultReceiver.ACTION_MVP_RESULT) {
+                val status = intent.getStringExtra(MvpResultReceiver.EXTRA_STATUS)
+                    ?: "No status received" // Use MvpResultReceiver
+                binding.textviewFirst.text = status
+                Snackbar.make(binding.root, status, Snackbar.LENGTH_LONG).show()
+            }
         }
-        Log.d(TAG, "MVP Result Receiver registered.")
     }
 
     override fun onStop() {
@@ -73,8 +62,7 @@ class FirstFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
 
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
@@ -116,7 +104,8 @@ class FirstFragment : Fragment() {
             val licenseNumber = scannedJson.optString("licenseNumber", "")
 
             Log.d(TAG, "Starting background verification process.")
-            Snackbar.make(binding.root, "Verification sent to background...", Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(binding.root, "Verification sent to background...", Snackbar.LENGTH_SHORT)
+                .show()
 
             if (!token.isEmpty()) {
                 MVPVerificationService.authenticate(view.context, token)
@@ -133,9 +122,7 @@ class FirstFragment : Fragment() {
                 } else {
                     Log.d(TAG, "Code type not recognized: $codeType")
                     Snackbar.make(
-                        binding.root,
-                        "Code type not recognized: $codeType",
-                        Snackbar.LENGTH_SHORT
+                        binding.root, "Code type not recognized: $codeType", Snackbar.LENGTH_SHORT
                     ).show()
                     return@setOnClickListener
                 }
