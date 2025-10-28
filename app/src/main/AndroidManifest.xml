@@ -40,7 +40,7 @@
             tools:replace="screenOrientation" />
 
         <receiver
-            android:name=".service.MvpResultReceiver"
+            android:name=".service.ExternalReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.example.mvpauthenticatorkotlin.ACTION_MVP_RESULT" />

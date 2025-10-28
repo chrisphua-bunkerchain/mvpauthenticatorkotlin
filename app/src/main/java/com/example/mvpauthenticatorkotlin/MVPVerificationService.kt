@@ -10,10 +10,9 @@ import android.os.Build
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
-import com.example.mvpauthenticatorkotlin.service.MvpResultReceiver
+import com.example.mvpauthenticatorkotlin.service.ExternalReceiver
 
 object MVPVerificationService {
-
     val TAG: String = this::class.java.simpleName
 
     private const val MVP_APP_PACKAGE = "com.bunkerchain.mvp_app"
@@ -22,6 +21,9 @@ object MVPVerificationService {
 
     private const val MVP_APP_SERVICE = "com.bunkerchain.mvp_app.main.TokenProcessingService"
 
+    /**
+     * Check if MVP app is installed
+     */
     fun checkMvpAppInstalled(context: Context): Boolean {
         val packageManager: PackageManager = context.packageManager
         val intent = Intent(Intent.ACTION_MAIN).apply {
@@ -29,7 +31,6 @@ object MVPVerificationService {
             setPackage(MVP_APP_PACKAGE)
         }
 
-        // Check if the app is installed
         val apps = packageManager.queryIntentActivities(intent, 0)
         if (apps.isEmpty()) {
             Log.w(TAG, "MVP app not found. Check package name and <queries> in manifest.")
@@ -61,7 +62,6 @@ object MVPVerificationService {
             }
             Log.d(TAG, "Service intent sent successfully.")
         } catch (e: Exception) {
-            // Log the full exception. This is the most important step for debugging.
             Log.e(TAG, "Failed to start MVP app service.", e)
             Toast.makeText(context, "Could not start MVP app service.", Toast.LENGTH_SHORT).show()
         }
@@ -74,27 +74,15 @@ object MVPVerificationService {
             context.contentResolver,
             Settings.Secure.ANDROID_ID
         )
-//        val intent = Intent(Intent.ACTION_MAIN)
-//        intent.setPackage(MVP_APP_PACKAGE)
-//        intent.addCategory(Intent.CATEGORY_LAUNCHER)
-//        intent.putExtra("appName", "demo_broadcast")
-//        intent.putExtra("deviceCode", deviceCode)
-//        intent.putExtra("imoNumber", imoNumber)
-//        intent.putExtra("code", code)
-//        intent.putExtra("packageName", packageName)
-//        intent.putExtra("action", MvpResultReceiver.ACTION_MVP_RESULT)
 
-        val uri = Uri.Builder()
-            .scheme("marinevesselpass")
+        val uri = Uri.Builder().scheme("marinevesselpass")
             .authority("verify")
             .appendQueryParameter("appName", "demo_broadcast")
             .appendQueryParameter("deviceCode", deviceCode)
             .appendQueryParameter("imoNumber", imoNumber)
             .appendQueryParameter("code", code)
             .appendQueryParameter("packageName", packageName)
-            .appendQueryParameter("scheme", "mvpauthenticatorkotlin")
-            .appendQueryParameter("host", "callback")
-            .appendQueryParameter("action", MvpResultReceiver.ACTION_MVP_RESULT)
+            .appendQueryParameter("action", ExternalReceiver.ACTION_MVP_RESULT)
             .build()
 
         val intent = Intent(Intent.ACTION_VIEW, uri)
@@ -114,7 +102,6 @@ object MVPVerificationService {
             context.startActivity(intent)
             Log.d(TAG, "Service intent sent successfully.")
         } catch (e: Exception) {
-            // Log the full exception. This is the most important step for debugging.
             Log.e(TAG, "Failed to start MVP app service.", e)
             Toast.makeText(context, "Could not start MVP app service.", Toast.LENGTH_SHORT).show()
         }

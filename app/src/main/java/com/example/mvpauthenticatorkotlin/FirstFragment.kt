@@ -12,7 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.mvpauthenticatorkotlin.databinding.FragmentFirstBinding
-import com.example.mvpauthenticatorkotlin.service.MvpResultReceiver
+import com.example.mvpauthenticatorkotlin.service.ExternalReceiver
 import com.google.android.material.snackbar.Snackbar
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
@@ -33,41 +33,43 @@ class FirstFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        val intentFilter = IntentFilter(MvpResultReceiver.ACTION_MVP_RESULT)
+        val intentFilter = IntentFilter(ExternalReceiver.ACTION_MVP_RESULT)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             requireActivity().registerReceiver(
-                mvpResultReceiver, intentFilter, Context.RECEIVER_EXPORTED
+                internalReceiver, intentFilter, Context.RECEIVER_EXPORTED
             )
-        }
-    }
-
-    /**
-     * BroadcastReceiver to receive the result of the MVP verification from MvpResultReceiver.
-     */
-    private val mvpResultReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == MvpResultReceiver.ACTION_MVP_RESULT) {
-                val status = intent.getStringExtra(MvpResultReceiver.EXTRA_STATUS)
-                    ?: "No status received" // Use MvpResultReceiver
-                binding.textviewFirst.text = status
-                Snackbar.make(binding.root, status, Snackbar.LENGTH_LONG).show()
-            }
         }
     }
 
     override fun onStop() {
         super.onStop()
-        requireActivity().unregisterReceiver(mvpResultReceiver)
+        requireActivity().unregisterReceiver(internalReceiver)
         Log.d(TAG, "MVP Result Receiver unregistered.")
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
         return binding.root
+    }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    /**
+     * BroadcastReceiver to receive the result of the MVP verification from MvpResultReceiver.
+     */
+    private val internalReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == ExternalReceiver.ACTION_MVP_RESULT) {
+                val result = intent.getStringExtra(ExternalReceiver.RESULT) ?: "No result received"
+                binding.textviewFirst.text = result
+                Snackbar.make(binding.root, result, Snackbar.LENGTH_LONG).show()
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -109,16 +111,13 @@ class FirstFragment : Fragment() {
 
             if (!token.isEmpty()) {
                 MVPVerificationService.authenticate(view.context, token)
-
-                // The result will come back to MyService -> BroadcastReceiver automatically.
-                binding.textviewFirst.text = "Token sent. Waiting for background result..."
             } else {
                 var authenticationCodeValue: String
 
                 if (codeType == "imoNumber") {
-                    authenticationCodeValue = imoNumber + accountNumber
+                    authenticationCodeValue = "$imoNumber$accountNumber"
                 } else if (codeType == "licenseNumber") {
-                    authenticationCodeValue = licenseNumber + accountNumber
+                    authenticationCodeValue = "$licenseNumber$accountNumber"
                 } else {
                     Log.d(TAG, "Code type not recognized: $codeType")
                     Snackbar.make(
@@ -128,16 +127,11 @@ class FirstFragment : Fragment() {
                 }
 
                 MVPVerificationService.authenticate(view.context, authenticationCodeValue, code)
-
-                // The result will come back to MyService -> BroadcastReceiver automatically.
-                binding.textviewFirst.text = "Code sent. Waiting for background result..."
             }
-        }
-    }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+            // The result will come back to ExternalReceiver -> broadcast to UI -> internalReceiver automatically.
+            binding.textviewFirst.text = "Code sent. Waiting for background result..."
+        }
     }
 
     /**
