@@ -15,6 +15,8 @@ import com.example.mvpauthenticatorkotlin.service.ExternalReceiver
 object MVPVerificationService {
     val TAG: String = this::class.java.simpleName
 
+    private const val MVP_APP_SCHEME = "bunkerchain"
+
     private const val MVP_APP_PACKAGE = "com.bunkerchain.mvp_app"
 
     private const val MVP_APP_SPLASH = "com.bunkerchain.mvp_app.main.SplashActivity"
@@ -75,9 +77,9 @@ object MVPVerificationService {
             Settings.Secure.ANDROID_ID
         )
 
-        val uri = Uri.Builder().scheme("marinevesselpass")
+        val uri = Uri.Builder().scheme(MVP_APP_SCHEME)
             .authority("verify")
-            .appendQueryParameter("appName", "demo_broadcast")
+            .appendQueryParameter("appName", "mvpauthenticatorkotlin")
             .appendQueryParameter("deviceCode", deviceCode)
             .appendQueryParameter("imoNumber", imoNumber)
             .appendQueryParameter("code", code)
