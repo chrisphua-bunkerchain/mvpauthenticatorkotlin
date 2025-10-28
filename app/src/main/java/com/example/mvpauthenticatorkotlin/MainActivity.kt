@@ -8,9 +8,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.mvpauthenticatorkotlin.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var appBarConfiguration: AppBarConfiguration
-
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
