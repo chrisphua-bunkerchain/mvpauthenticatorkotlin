@@ -15,7 +15,7 @@ import com.example.mvpauthenticatorkotlin.service.ExternalReceiver
 object MVPVerificationService {
     val TAG: String = this::class.java.simpleName
 
-    private const val MVP_APP_SCHEME = "bunkerchain"
+    private const val MVP_APP_SCHEME = "marinevesselpass"
 
     private const val MVP_APP_PACKAGE = "com.bunkerchain.mvp_app"
 
