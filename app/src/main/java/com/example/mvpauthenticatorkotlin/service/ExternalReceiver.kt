@@ -11,15 +11,14 @@ import android.util.Log
  */
 class ExternalReceiver : BroadcastReceiver() {
     companion object {
+        val TAG: String = this::class.java.simpleName
         const val ACTION_MVP_RESULT = "com.example.mvpauthenticatorkotlin.ACTION_MVP_RESULT"
         const val RESULT = "result"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
         val result = intent.getStringExtra("result")
-        Log.d(
-            "MvpResultReceiver", "Received result from MVP app. Broadcasting to UI. Result: $result"
-        )
+        Log.d(TAG, "Received result from MVP app. Broadcasting to UI. Result: $result")
 
         // Create a new intent to send to UI (FirstFragment)
         val uiIntent = Intent(ACTION_MVP_RESULT).apply {
